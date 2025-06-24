@@ -4,6 +4,8 @@ import pandas as pd
 
 import numpy as np
 
+import mysql.connector
+
 from googleapiclient.discovery import build
 
 from googleapiclient.errors import HttpError
@@ -22,6 +24,7 @@ st.markdown('### Built with Streamlit')
 
 import pandas as pd
 import re
+import mysql.connector
 from sqlalchemy import create_engine
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
