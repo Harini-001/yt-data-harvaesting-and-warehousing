@@ -929,7 +929,6 @@ def iso8601_duration_to_seconds(duration):
     return total_seconds
 
 
-!pip install -q streamlit
 
 
 
