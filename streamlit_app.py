@@ -184,13 +184,8 @@ import pandas as pd
 import sqlite3
 
 def insert_videos_into_sqlite(df1):
-    # Connect to the SQLite database
     conn = sqlite3.connect('db1.db')
-
-    # Create a cursor object to execute SQL commands
     cursor = conn.cursor()
-
-    # Create the 'videos' table if it doesn't exist
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS videos (
             Video_Id TEXT,
@@ -203,24 +198,37 @@ def insert_videos_into_sqlite(df1):
             Video_likecount INTEGER,
             Video_favoritecount INTEGER,
             Video_commentcount INTEGER,
-            Video_duration INTEGER,
+            Video_duration TEXT,
             Video_thumbnails TEXT,
             Video_caption TEXT
         )
     ''')
-
-    # Commit the table creation
     conn.commit()
-
-    # Insert the data into the 'videos' table
     df1.to_sql('videos', conn, if_exists='append', index=False)
-
-    # Close the connection
     conn.close()
+    st.success("✅ Data inserted into 'videos' table!")
 
-# Example usage:
-# Assuming df1 is a pandas DataFrame with the required columns
-insert_videos_into_sqlite(df1)
+
+# ✅ Put this inside a button!
+if st.button("Fetch and Store Videos"):
+    try:
+        request = youtube.channels().list(
+            part="contentDetails",
+            id=channel_id
+        )
+        response = request.execute()
+        playlist_id = response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+        video_ids = get_video_ids_from_playlist(playlist_id)
+
+        df1 = videos_data(video_ids)
+
+        if not df1.empty:
+            st.dataframe(df1)
+            insert_videos_into_sqlite(df1)
+        else:
+            st.warning("⚠️ No videos found for this channel.")
+    except Exception as e:
+        st.error(f"❌ Error: {e}")
 
 #function to fetch the comments from all videos
 def comments_inf(allvideo_ids):
