@@ -146,38 +146,39 @@ def iso8601_duration_to_seconds(duration):
     return total_seconds
 
 #Function to fetch the video datas from video id
-def videos_data(all_video_ids):
-    video_info=[]
-    for each in all_video_ids:
-        request = youtube.videos().list(
-            part='snippet,contentDetails,statistics',
-            id=each
+from googleapiclient.errors import HttpError
 
-        )
-        response = request.execute()
-        for i in response["items"]:
-            given= {
-                       "Video_Id":i["id"] ,
-                       "Video_Title":i["snippet"]["title"],
-                       "Video_Description":i["snippet"]["description"],
-                       "Channel_id":i['snippet']['channelId'],
-                       "video_Tags": i['snippet'].get("Tags",0),
-                       "video_Pubdate":i["snippet"]["publishedAt"],
-                       "Video_viewcount":i["statistics"]["viewCount"],
-                       "Video_likecount":i["statistics"].get('likeCount',0) ,
-                       "Video_favoritecount":i["statistics"]["favoriteCount"],
-                       "Video_commentcount":i["statistics"].get("Comment_Count",0),
-                       "Video_duration":iso8601_duration_to_seconds(i["contentDetails"]["duration"]),
-                       "Video_thumbnails":i["snippet"]["thumbnails"]['default']['url'],
-                       "Video_caption":i["contentDetails"]["caption"]
-            }
+def videos_data(video_ids):
+    st.subheader("Fetching Video Details")
+    
+    try:
+        all_video_stats = []
 
-            video_info.append(given)
-    df1=pd.DataFrame(video_info)
-    return df1
+        for video_id in video_ids:
+            st.write(f"▶️ Fetching for video ID: `{video_id}`")
+            request = youtube.videos().list(
+                part="snippet,contentDetails,statistics",
+                id=video_id
+            )
+            response = request.execute()
 
-allvideo_ids=playlist_videos_id(channel_ids)
-df1=videos_data(allvideo_ids)
+            if response["items"]:
+                video = response["items"][0]
+                video_info = {
+                    "Video ID": video_id,
+                    "Title": video["snippet"]["title"],
+                    "Views": video["statistics"].get("viewCount", 0),
+                    "Likes": video["statistics"].get("likeCount", 0),
+                    "Comments": video["statistics"].get("commentCount", 0),
+                    "Published At": video["snippet"]["publishedAt"],
+                }
+                all_video_stats.append(video_info)
+
+        return pd.DataFrame(all_video_stats)
+
+    except HttpError as e:
+        st.error(f"❌ YouTube API quota error or bad ID: {e}")
+        return pd.DataFrame()
 
 
 import pandas as pd
