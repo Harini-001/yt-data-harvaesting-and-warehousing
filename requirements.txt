@@ -1,7 +1,6 @@
 streamlit
 google-api-python-client
 pandas
-mysql-connector-python
 sqlalchemy
 numpy
 altair
