@@ -279,13 +279,8 @@ import pandas as pd
 import sqlite3
 
 def insert_comments_into_sqlite(df2):
-    # Connect to the SQLite database
     conn = sqlite3.connect('db1.db')
-
-    # Create a cursor object to execute SQL commands
     cursor = conn.cursor()
-
-    # Create the 'comments' table if it doesn't exist
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS comments (
             comment_id TEXT,
@@ -296,15 +291,31 @@ def insert_comments_into_sqlite(df2):
             channel_id TEXT
         )
     ''')
-
-    # Commit the table creation
     conn.commit()
-
-    # Insert the data into the 'comments' table
     df2.to_sql('comments', conn, if_exists='append', index=False)
-
-    # Close the connection
     conn.close()
+if st.button("Fetch & Insert Comments"):
+    try:
+        request = youtube.channels().list(
+            part="contentDetails",
+            id=channel_id
+        )
+        response = request.execute()
+        playlist_id = response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+
+        video_ids = get_video_ids_from_playlist(playlist_id)
+        df2 = comments_inf(video_ids)
+
+        if not df2.empty:
+            insert_comments_into_sqlite(df2)
+            st.dataframe(df2.head())
+            st.success("✅ Comments inserted into SQLite DB.")
+        else:
+            st.warning("⚠️ No comments fetched.")
+
+    except Exception as e:
+        st.error(f"❌ Error: {e}")
+
 
 # Example usage:
 # Assuming df2 is a pandas DataFrame with the required columns
