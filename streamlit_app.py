@@ -230,46 +230,50 @@ if st.button("Fetch and Store Videos"):
     except Exception as e:
         st.error(f"❌ Error: {e}")
 
-#function to fetch the comments from all videos
-def comments_inf(allvideo_ids):
-    commentdata=[]
+from googleapiclient.errors import HttpError
+import pandas as pd
+
+def comments_inf(video_ids):
+    commentdata = []
     try:
-        for video in allvideo_ids:
-            nextpagetoken=None
+        for video_id in video_ids:
+            nextpagetoken = None
             while True:
                 try:
-                    request=youtube.commentThreads().list(
+                    request = youtube.commentThreads().list(
                         part="snippet",
-                        videoId=video,
+                        videoId=video_id,
                         maxResults=50,
-                        pageToken=nextpagetoken)
-                    response=request.execute()
+                        pageToken=nextpagetoken
+                    )
+                    response = request.execute()
 
-                    for k,all in enumerate(response["items"]):
-                            given={
-                                        "Comment_Id":all["snippet"]["topLevelComment"]["id"],
-                                        "Comment_Text":all["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
-                                        "Comment_Authorname":all["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"],
-                                        "published_date":all["snippet"]["topLevelComment"]["snippet"]["publishedAt"],
-                                        "video_id":all["snippet"]["topLevelComment"]["snippet"]["videoId"],
-                                        'channel_id': all['snippet']['channelId']}
+                    for item in response["items"]:
+                        comment = {
+                            "Comment_Id": item["snippet"]["topLevelComment"]["id"],
+                            "Comment_Text": item["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
+                            "Comment_Authorname": item["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"],
+                            "published_date": item["snippet"]["topLevelComment"]["snippet"]["publishedAt"],
+                            "video_id": item["snippet"]["topLevelComment"]["snippet"]["videoId"],
+                            "channel_id": channel_id  # Passed externally
+                        }
+                        commentdata.append(comment)
 
-                            commentdata.append(given)
-                    nextpagetoken= response.get('nextPageToken')
-                    if nextpagetoken is None:
+                    nextpagetoken = response.get("nextPageToken")
+                    if not nextpagetoken:
                         break
+
                 except HttpError as e:
                     if e.resp.status == 403:
-                        print(f"Comments are disabled for video ID: {video_id}")
+                        st.warning(f"⚠️ Comments are disabled for video ID: {video_id}")
                         break
                     else:
                         raise
     except Exception as e:
-        print(f"An error occurred: {e}")
-    df2 = pd.DataFrame(commentdata)
-    return df2
+        st.error(f"❌ Error while fetching comments: {e}")
 
-df2=comments_inf(allvideo_ids)
+    return pd.DataFrame(commentdata)
+
 
 import pandas as pd
 import sqlite3
