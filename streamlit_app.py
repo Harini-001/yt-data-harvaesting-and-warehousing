@@ -317,9 +317,6 @@ if st.button("Fetch & Insert Comments"):
         st.error(f"❌ Error: {e}")
 
 
-# Example usage:
-# Assuming df2 is a pandas DataFrame with the required columns
-insert_comments_into_sqlite(df2)
 
 import sqlite3
 import pandas as pd
