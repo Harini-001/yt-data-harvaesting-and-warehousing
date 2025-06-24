@@ -180,6 +180,12 @@ def videos_data(video_ids):
         st.error(f"❌ YouTube API quota error or bad ID: {e}")
         return pd.DataFrame()
 
+df1 = videos_data(allvideo_ids)
+
+if not df1.empty:
+    insert_videos_into_sqlite(df1)
+else:
+    st.warning("No video data was fetched, skipping database insertion.")
 
 import pandas as pd
 import sqlite3
