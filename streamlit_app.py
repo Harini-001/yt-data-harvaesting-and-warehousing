@@ -4,8 +4,6 @@ import pandas as pd
 
 import numpy as np
 
-import mysql.connector
-
 from googleapiclient.discovery import build
 
 from googleapiclient.errors import HttpError
@@ -24,7 +22,6 @@ st.markdown('### Built with Streamlit')
 
 import pandas as pd
 import re
-import mysql.connector
 from sqlalchemy import create_engine
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -556,7 +553,6 @@ fetch_most_commented_videos()
 
 #Import necessary libraries
 import streamlit as st
-import mysql.connector
 import pandas as pd
 import googleapiclient.discovery
 from googleapiclient.errors import HttpError
@@ -566,7 +562,6 @@ import re
 # Define API version and service name
 #Import necessary libraries
 import streamlit as st
-import mysql.connector
 import pandas as pd
 import googleapiclient.discovery
 from googleapiclient.errors import HttpError
