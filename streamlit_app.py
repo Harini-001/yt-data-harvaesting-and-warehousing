@@ -891,6 +891,7 @@ def Fetch_comment_data(newchannel_id):
                 nextpagetoken= response.get('nextPageToken')
             except HttpError as e:
                 pass
+	return pd.Dataframe(commentdata)
 
 import sqlite3
 import pandas as pd
@@ -1008,7 +1009,7 @@ def main():
             st.write(video_df)
 
         if st.button("Fetch Comment Data"):
-            comment_df = Fetch_comment_data([channel_id])
+            comment_df = Fetch_comment_data(channel_id)
             comment_df.index +=1
             st.subheader("Comment Data")
             st.write(comment_df)
