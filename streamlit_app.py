@@ -888,10 +888,11 @@ def Fetch_comment_data(newchannel_id):
                                         'channel_id': all['snippet']['channelId']}
 
                     commentdata.append(given)
+			return pd.Dataframe(commentdata)
                 nextpagetoken= response.get('nextPageToken')
             except HttpError as e:
                 pass
-	return pd.Dataframe(commentdata)
+		
 
 import sqlite3
 import pandas as pd
