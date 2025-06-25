@@ -45,7 +45,7 @@ conn.close()
 
 #Used Google API key to fetch the data from youtube
 def Api_connector():
-    apikey="AIzaSyAEBISh8DJZNggnU9WfuUPVAFNpENz5py0"
+    apikey="AIzaSyB3AhdDSmX6ju-mrTC0kmh_KoyQDLV6Bzo"
     api_service_name = "youtube"
     api_version = "v3"
     youtube=build(api_service_name,api_version,developerKey=apikey)
@@ -589,7 +589,7 @@ import re
 
 api_service_name = "youtube"
 api_version = "v3"
-api_key="AIzaSyAEBISh8DJZNggnU9WfuUPVAFNpENz5py0"
+api_key="AIzaSyB3AhdDSmX6ju-mrTC0kmh_KoyQDLV6Bzo"
 
 youtube = googleapiclient.discovery.build(api_service_name, api_version, developerKey=api_key)
 
