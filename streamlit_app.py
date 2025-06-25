@@ -609,67 +609,84 @@ def fetch_data(query):
     return df
 
 #Function to execute the predefined queries
+import sqlite3
+import pandas as pd
+
 def execute_query(question):
+    conn = sqlite3.connect('db1.db')  # Ensure this matches the DB used for table creation
+
     query_mapping = {
         "What are the names of all the videos and their corresponding channels?":
-		         """SELECT Video_title,channel_name
-                 FROM videos
-                 JOIN channels ON channels.channel_id=videos.channel_id;""",
+            """SELECT videos.Video_title, channels.channel_name
+               FROM videos
+               JOIN channels ON channels.channel_id = videos.channel_id;""",
+
         "Which channels have the most number of videos, and how many videos do they have?":
-		         """SELECT channel_name, COUNT(video_id) AS video_count
-				 FROM videos
-                 JOIN Channels ON channels.channel_id=videos.channel_id
-                 GROUP BY channel_name
-                 ORDER BY video_count DESC;""",
+            """SELECT channels.channel_name, COUNT(videos.video_id) AS video_count
+               FROM videos
+               JOIN channels ON channels.channel_id = videos.channel_id
+               GROUP BY channels.channel_name
+               ORDER BY video_count DESC;""",
+
         "What are the top 10 most viewed videos and their respective channels?":
-		         """SELECT video_title,channel_name
-                 FROM videos
-                 JOIN channels ON channels.channel_id =videos.channel_id
-                 ORDER BY video_viewcount DESC
-                 LIMIT 10;""",
+            """SELECT videos.video_title, channels.channel_name
+               FROM videos
+               JOIN channels ON channels.channel_id = videos.channel_id
+               ORDER BY videos.video_viewcount DESC
+               LIMIT 10;""",
+
         "How many comments were made on each video, and what are their corresponding video names?":
-		         """SELECT video_title, COUNT(*) AS comment_counts
-                 FROM videos
-                 JOIN comments on videos.video_id=comments.video_id
-                 GROUP BY video_title;""",
+            """SELECT videos.video_title, COUNT(comments.comment_id) AS comment_count
+               FROM videos
+               JOIN comments ON videos.video_id = comments.video_id
+               GROUP BY videos.video_title;""",
+
         "Which videos have the highest number of likes, and what are their corresponding channel names?":
-		         """SELECT video_title,channel_name
-                 FROM videos
-                 JOIN channels ON channels.channel_id=videos.channel_id
-                 ORDER BY video_likecount DESC
-                 LIMIT 1;""",
+            """SELECT videos.video_title, channels.channel_name
+               FROM videos
+               JOIN channels ON channels.channel_id = videos.channel_id
+               ORDER BY videos.video_likecount DESC
+               LIMIT 1;""",
+
         "What is the total number of likes for each video, and what are their corresponding video names?":
-                """SELECT videos.Video_title, SUM(videos.Video_likecount) AS total_likes
-                  FROM videos
-                  GROUP BY videos.Video_title;""",
+            """SELECT videos.video_title, SUM(videos.video_likecount) AS total_likes
+               FROM videos
+               GROUP BY videos.video_title;""",
+
         "What is the total number of views for each channel, and what are their corresponding channel names?":
-		          """SELECT channel_name, SUM(video_viewcount) AS Total_views
-                  FROM videos
-                  JOIN channels ON channels.channel_id=videos.channel_id
-                  GROUP BY channel_name;""",
+            """SELECT channels.channel_name, SUM(videos.video_viewcount) AS total_views
+               FROM videos
+               JOIN channels ON channels.channel_id = videos.channel_id
+               GROUP BY channels.channel_name;""",
+
         "What are the names of all the channels that have published videos in the year 2022?":
-		          """SELECT DISTINCT channels.channel_name
-                  FROM channels
-                  JOIN videos ON channels.channel_id = videos.channel_id
-                  WHERE YEAR(videos.Video_pubdate) = 2022;""",
+            """SELECT DISTINCT channels.channel_name
+               FROM channels
+               JOIN videos ON channels.channel_id = videos.channel_id
+               WHERE strftime('%Y', videos.video_pubdate) = '2022';""",
+
         "What is the average duration of all videos in each channel, and what are their corresponding channel names?":
-		          """ SELECT channel_name,AVG(video_duration) AS Average_duration
-                  FROM videos
-                  JOIN channels ON videos.channel_id = channels.channel_id
-                  GROUP BY channel_name;""",
+            """SELECT channels.channel_name, AVG(videos.video_duration) AS average_duration
+               FROM videos
+               JOIN channels ON videos.channel_id = channels.channel_id
+               GROUP BY channels.channel_name;""",
+
         "Which videos have the highest number of comments, and what are their corresponding channel names?":
-		          """ SELECT video_title,channel_name
-                  FROM videos
-                  JOIN channels ON videos.channel_id = channels.channel_id
-                  ORDER BY Video_commentcount DESC
-                  LIMIT 1;"""
+            """SELECT videos.video_title, channels.channel_name
+               FROM videos
+               JOIN channels ON videos.channel_id = channels.channel_id
+               ORDER BY videos.video_commentcount DESC
+               LIMIT 1;"""
     }
 
-    query=query_mapping.get(question)
+    query = query_mapping.get(question)
     if query:
-        return fetch_data(query)
+        df = pd.read_sql_query(query, conn)
     else:
-        return pd.DataFrame()
+        df = pd.DataFrame()
+
+    conn.close()
+    return df
 
 
 import sqlite3
